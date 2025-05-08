@@ -1,35 +1,29 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu May  8 11:22:19 2025
-
-@author: PC
-"""
-
-from flask import Flask, request, jsonify
-from oee_calculator import calculate_oee
+import streamlit as st
 import pandas as pd
+from oee_calculator import calculate_oee
 
-app = Flask(__name__)
-df = pd.read_excel('sensor_data.xlsx')
+@st.cache_data
+def load_data():
+    return pd.read_excel("sensor_data.xlsx")  # Place this in the same directory or fix path
 
-@app.route("/api/oee", methods=["POST"])
-def get_oee():
-    query = request.json.get("query", "").lower()
+df = load_data()
 
-    # Simple rule-based extraction (could be replaced with NLP/LLM)
-    device_id = extract_from_query(query, "device")
-    location = extract_from_query(query, "plant")
-    month = extract_from_query(query, "jan feb mar apr may jun jul aug sep oct nov dec")
+def extract_filters(query):
+    query = query.lower()
+    device = next((word.upper() for word in query.split() if word.upper().startswith("D")), None)
+    month = next((m for m in ["jan", "feb", "mar", "apr", "may", "jun", "jul",
+                              "aug", "sep", "oct", "nov", "dec"] if m in query), None)
+    location = next((loc for loc in ["plant a", "plant b"] if loc in query), None)
+    return device, location.title() if location else None, month
 
-    result = calculate_oee(df, device_id, location, month)
-    return jsonify({"result": result})
+st.set_page_config(page_title="OEE Chat Assistant", layout="centered")
+st.title("🧠 Gen AI OEE Chat Assistant")
 
-def extract_from_query(query, key):
-    words = query.split()
-    for i, word in enumerate(words):
-        if key in word:
-            return words[i + 1].upper()
-    return None
+query = st.text_input("Ask about OEE:", placeholder="e.g., OEE of Device D1 in Jan 2025 at Plant A")
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if st.button("Submit") and query:
+    with st.spinner("Processing..."):
+        device, location, month = extract_filters(query)
+        result = calculate_oee(df, device, location, month)
+        st.success("Result:")
+        st.write(result if isinstance(result, dict) else {"Message": result})
