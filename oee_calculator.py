@@ -3,17 +3,15 @@ import pandas as pd
 def calculate_oee(df, device, location, month):
     # Filter by device
     if device:
-        df = df[df['Device ID'] == device]
+        df = df[df['Device ID'].str.upper() == device]
 
     # Filter by location
     if location:
         df = df[df['Location'].str.lower() == location.lower()]
 
-    # Convert and filter by month
+    # Filter by month (match full string like "jan 2024")
     if month:
-        df = df.copy()  # Prevent SettingWithCopyWarning
-        df['Month'] = pd.to_datetime(df['Month'], format='%b %Y', errors='coerce')
-        df = df.loc[df['Month'].dt.month_name().str.lower() == month.lower()]
+        df = df[df['Month'].str.lower() == f"{month.lower()} 2024"]
 
     # If no matching data
     if df.empty:
