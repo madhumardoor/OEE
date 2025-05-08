@@ -17,6 +17,7 @@ def extract_filters(query):
 
     return device, location.title() if location else None, month
 
+
 def calculate_oee(df, device, location, month):
     if device:
         df = df[df['Device ID'] == device]
