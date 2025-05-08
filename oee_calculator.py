@@ -27,7 +27,8 @@ def calculate_oee(df, device, location, month):
     # Parse the 'Month' column to datetime, considering the format 'MMM YYYY'
     if month:
         df['Month'] = pd.to_datetime(df['Month'], format='%b %Y', errors='coerce')
-        df = df[df['Month'].dt.month_name().str.lower() == month.lower()]
+        df = df.loc[df['Month'].dt.month_name().str.lower() == month.lower()]
+
     
     if df.empty:
         return "No data found for the given filters."
