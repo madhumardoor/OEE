@@ -2,9 +2,11 @@ import streamlit as st
 import pandas as pd
 from oee_calculator import calculate_oee
 
+st.set_page_config(page_title="OEE Chat Assistant", layout="centered")  # ✅ MUST BE FIRST
+
 @st.cache_data
 def load_data():
-    return pd.read_excel("sensor_data.xlsx")  # Place this in the same directory or fix path
+    return pd.read_excel("sensor_data.xlsx")
 
 df = load_data()
 
@@ -16,7 +18,6 @@ def extract_filters(query):
     location = next((loc for loc in ["plant a", "plant b"] if loc in query), None)
     return device, location.title() if location else None, month
 
-st.set_page_config(page_title="OEE Chat Assistant", layout="centered")
 st.title("🧠 Gen AI OEE Chat Assistant")
 
 query = st.text_input("Ask about OEE:", placeholder="e.g., OEE of Device D1 in Jan 2025 at Plant A")
