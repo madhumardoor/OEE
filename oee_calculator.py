@@ -9,13 +9,16 @@ def calculate_oee(df, device, location, month):
     if location:
         df = df[df['Location'].str.lower() == location.lower()]
 
-    # Filter by month (match full string like "jan 2024")
+    # Filter by full month name and year
     if month:
-        df = df[df['Month'].str.lower() == f"{month.lower()} 2024"]
+        df = df.copy()
+        df['Month'] = df['Month'].str.strip().str.lower()  # Normalize
+        full_month = f"{month.lower()} 2024"
+        df = df[df['Month'] == full_month]
 
     # If no matching data
     if df.empty:
-        return "No data found for the given filters."
+        return {"Message": "No data found for the given filters."}
 
     # Calculate averages
     availability = df['Availability'].mean()
