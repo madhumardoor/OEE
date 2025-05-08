@@ -10,7 +10,7 @@ from oee_calculator import calculate_oee
 import pandas as pd
 
 app = Flask(__name__)
-df = pd.read_excel('data/sensor_data.xlsx')
+df = pd.read_excel('sensor_data.xlsx')
 
 @app.route("/api/oee", methods=["POST"])
 def get_oee():
