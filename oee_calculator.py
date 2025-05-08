@@ -1,12 +1,24 @@
 import pandas as pd
+import re
 
-# Assuming this is where the OEE calculation happens
+def extract_filters(query):
+    query = query.lower()
+
+    # Extract device ID (e.g., D1, D2, ...)
+    device = next((word.upper() for word in query.split() if re.match(r"D\d+", word)), None)
+    
+    # Extract month (e.g., "jan", "feb", ...)
+    month = next((m for m in ["jan", "feb", "mar", "apr", "may", "jun", "jul",
+                              "aug", "sep", "oct", "nov", "dec"] if m in query), None)
+    
+    # Extract location (e.g., "plant a", "plant b")
+    location = next((loc for loc in ["plant a", "plant b"] if loc in query), None)
+
+    return device, location.title() if location else None, month
+
 def calculate_oee(df, device, location, month):
-    # Filter by device if specified
     if device:
         df = df[df['Device ID'] == device]
-    
-    # Filter by location if specified
     if location:
         df = df[df['Location'].str.lower() == location.lower()]
     
@@ -16,12 +28,11 @@ def calculate_oee(df, device, location, month):
         # Filter by month
         df = df[df['Month'].dt.month_name().str.lower() == month.lower()]
     
-    # Check if the filtered DataFrame is empty
     if df.empty:
         return "No data found for the given filters."
     
     # Calculate OEE components
-    availability = df['Availability'].mean()  # Assuming these columns are numerical
+    availability = df['Availability'].mean()
     performance = df['Performance'].mean()
     quality = df['Quality'].mean()
 
