@@ -1,3 +1,4 @@
+# oee_calculator.py
 import pandas as pd
 import re
 
@@ -25,7 +26,6 @@ def calculate_oee(df, device, location, month):
     # Parse the 'Month' column to datetime, considering the format 'MMM YYYY'
     if month:
         df['Month'] = pd.to_datetime(df['Month'], format='%b %Y', errors='coerce')
-        # Filter by month
         df = df[df['Month'].dt.month_name().str.lower() == month.lower()]
     
     if df.empty:
